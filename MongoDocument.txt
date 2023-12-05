@@ -1,0 +1,49 @@
+## Steps to follow while creating webAPI with MongoDB,
+
+1) You have MongoDB installed in your system.
+2) Create database as per your requirements.
+3) Create WebAPI project in .net core.
+4) Install required packages for MongoDB -> MongoDB.Driver 
+	from Nuget package manager or console also intall other required packages like NesoftJson, AutoMapper
+5) Set database connection string in appsettings.json file like as given bellow
+
+"DBConnection": {
+  "CollectionName": "Product",
+  "ConnectionString": "mongodb://localhost:27017",
+  "DatabaseName": "ProductManagement"
+}
+
+6) Create context file.
+7) Inject dependency in Program.cs file for database connection and context file, such as given bellow.
+
+  //Add DI Container for DBContext Configuration 
+builder.Services.Configure<DBConnection>(builder.Configuration.GetSection(nameof(DBConnection)));
+builder.Services.AddSingleton<IDbContext>(
+    sp=>sp.GetRequiredService<IOptions<DBConnection>>().Value);
+builder.Services.AddSingleton<IMongoClient>(sp => new MongoClient(builder.Configuration.GetValue<string>("DBConnection:ConnectionString")));
+
+8) Create DTO/DAO business objects as per your database tables.
+  public partial class Product
+  {
+      [BsonId]
+      [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
+    
+      public string id { get; set; } 
+      [BsonElement("productName")]
+      public string productName { get; set; }
+      [BsonElement("productDescription")]
+      public string productDescription { get; set; }
+      [BsonElement("productCategory")]
+      public int productCategory { get; set; }
+      [BsonElement("productPrice")]
+      public decimal productPrice { get; set; }
+      public bool isActive { get; set; }  
+      public DateTime CreatedOn { get; set; }
+      public DateTime UpdatedOn { get; set;}
+      public string CreatedBy { get; set; }
+      public string UpdatedBy { get; set;}
+
+  }
+
+9) Create services file for each DTO curd operation.
+10. Create controller for each DTO for curd operation.
